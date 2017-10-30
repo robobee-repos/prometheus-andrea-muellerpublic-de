@@ -1,0 +1,84 @@
+/*
+ * Mandatory:
+ *
+ * vars.rsync.image.name
+ * vars.rsync.image.version
+ * vars.rsync.limits.cpu
+ * vars.rsync.limits.memory
+ * vars.rsync.requests.cpu
+ * vars.rsync.requests.memory
+ */
+
+import "affinities.stg"
+import "tolerations.stg"
+
+/*
+ *
+ */
+cc-rsync-piwik-deploy-yaml(parent, vars) ::= <<
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rsync-piwik
+  namespace: piwik-andrea
+  labels:
+    app: rsync-piwik
+    tier: backup
+    group: piwik-andrea
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: rsync-piwik
+      tier: backup
+      group: piwik-andrea
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: rsync-piwik
+        tier: backup
+        group: piwik-andrea
+    spec:
+      containers:
+      - image: <vars.rsync.image.name>:<vars.rsync.image.version>
+        name: rsync-piwik
+        env:
+        - name: RSYNC_AUTHORIZED_KEY
+          valueFrom:
+            secretKeyRef:
+              name: rsync-ssh
+              key: auth-key
+        - name: USER
+          value: "root"
+        ports:
+        - containerPort: 2222
+          name: ssh
+        readinessProbe:
+          exec:
+            command:
+            - /readiness.sh
+            - /data/index.php
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: <vars.rsync.limits.cpu>
+            memory: <vars.rsync.limits.memory>
+          requests:
+            cpu: <vars.rsync.requests.cpu>
+            memory: <vars.rsync.requests.memory>
+        volumeMounts:
+        - mountPath: /data
+          name: html
+          subPath: html
+      restartPolicy: Always
+      volumes:
+      - name: html
+        persistentVolumeClaim:
+          claimName: piwik-andrea
+<affinitiesGroup(parent, vars)>
+<tolerationsGroup(parent, vars)>
+
+>>

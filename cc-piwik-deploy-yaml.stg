@@ -1,0 +1,179 @@
+/*
+ * Mandatory:
+ *
+ * vars.piwik.image.name
+ * vars.piwik.image.version
+ * vars.piwik.php.memoryLimit_MB
+ * vars.piwik.php.maxExecutionTime
+ * vars.piwik.php.maxChildren
+ * vars.piwik.php.startServers
+ * vars.piwik.php.minSpareServers
+ * vars.piwik.php.maxSpareServers
+ * vars.piwik.php.opcacheEnable
+ * vars.piwik.php.opcacheEnableCLI
+ * vars.piwik.php.opcacheMemoryConsumption_MB
+ * vars.piwik.php.slowlogTimeout
+ * vars.piwik.limits.cpu
+ * vars.piwik.limits.memory
+ * vars.piwik.requests.cpu
+ * vars.piwik.requests.memory
+ * vars.nginx.image.name
+ * vars.nginx.image.version
+ * vars.nginx.limits.cpu
+ * vars.nginx.limits.memory
+ * vars.nginx.requests.cpu
+ * vars.nginx.requests.memory
+ */
+import "affinities.stg"
+import "tolerations.stg"
+
+/*
+ *
+ */
+cc-piwik-deploy-yaml(parent, vars) ::= <<
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: piwik
+  namespace: piwik-andrea
+  labels:
+    app: piwik
+    tier: frontend
+    group: piwik-andrea
+spec:
+  ports:
+  - name: "http"
+    port: 8080
+    targetPort: 8080
+  selector:
+    app: piwik
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: piwik-php
+  namespace: piwik-andrea
+  labels:
+    app: piwik
+    tier: frontend
+    group: piwik-andrea
+spec:
+  ports:
+  - name: "php"
+    port: 9000
+    targetPort: 9000
+  selector:
+    app: piwik
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: piwik
+  namespace: piwik-andrea
+  labels:
+    app: piwik
+    tier: frontend
+    group: piwik-andrea
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: piwik
+        tier: frontend
+        group: piwik-andrea
+    spec:
+      containers:
+      - image: <vars.piwik.image.name>:<vars.piwik.image.version>
+        name: piwik
+        env:
+        - name: PHP_MEMORY_LIMIT_MB
+          value: "<vars.piwik.php.memoryLimit_MB>"
+        - name: PHP_MAX_EXECUTION_TIME
+          value: "<vars.piwik.php.maxExecutionTime>"
+        - name: PHP_FPM_MAX_CHILDREN
+          value: "<vars.piwik.php.maxChildren>"
+        - name: PHP_FPM_START_SERVERS
+          value: "<vars.piwik.php.startServers>"
+        - name: PHP_FPM_MIN_SPARE_SERVERS
+          value: "<vars.piwik.php.minSpareServers>"
+        - name: PHP_FPM_MAX_SPARE_SERVERS
+          value: "<vars.piwik.php.maxSpareServers>"
+        - name: PHP_OPCACHE_ENABLE
+          value: "<vars.piwik.php.opcacheEnable>"
+        - name: PHP_OPCACHE_ENABLE_CLI
+          value: "<vars.piwik.php.opcacheEnableCLI>"
+        - name: PHP_OPCACHE_MEMORY_CONSUMPTION_MB
+          value: "<vars.piwik.php.opcacheMemoryConsumption_MB>"
+        - name: PHP_FPM_REQUEST_SLOWLOG_TIMEOUT
+          value: "<vars.piwik.php.slowlogTimeout>"
+        ports:
+        - containerPort: 9000
+          name: "php"
+        resources:
+          limits:
+            cpu: <vars.piwik.limits.cpu>
+            memory: <vars.piwik.limits.memory>
+          requests:
+            cpu: <vars.piwik.requests.cpu>
+            memory: <vars.piwik.requests.memory>
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: html
+          subPath: html
+      - image: <vars.nginx.image.name>:<vars.nginx.image.version>
+        name: nginx
+        env:
+        - name: NGINX_HTTP_PORT
+          value: "8080"
+        ports:
+        - containerPort: 8080
+          name: "http"
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 8080
+          initialDelaySeconds: 60
+          periodSeconds: 60
+        resources:
+          limits:
+            cpu: <vars.nginx.limits.cpu>
+            memory: <vars.nginx.limits.memory>
+          requests:
+            cpu: <vars.nginx.requests.cpu>
+            memory: <vars.nginx.requests.memory>
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: html
+          subPath: html
+        - mountPath: /nginx-in
+          name: nginx-config
+      restartPolicy: Always
+      volumes:
+      - name: html
+        persistentVolumeClaim:
+          claimName: piwik-andrea
+      - name: nginx-config
+        configMap:
+          name: nginx
+<affinitiesGroup(parent, vars)>
+<tolerationsGroup(parent, vars)>
+
+---
+
+>>

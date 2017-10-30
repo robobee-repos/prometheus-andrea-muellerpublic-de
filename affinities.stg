@@ -1,0 +1,36 @@
+/*
+ *
+ */
+affinitiesGroup(parent, vars, affinityRequired) ::= <<
+      affinity:
+        nodeAffinity:
+<if(affinityRequired)>
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: robobeerun.com/prometheus
+                operator: In
+                values:
+                - required
+<else>
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: robobeerun.com/prometheus
+                operator: In
+                values:
+                - preferred
+<endif>
+        podAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: robobeerun.com/group
+                  operator: In
+                  values:
+                  - prometheus-andrea
+              topologyKey: kubernetes.io/hostname
+>>

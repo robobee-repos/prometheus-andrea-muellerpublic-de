@@ -1,0 +1,21 @@
+/*
+ * Mandatory:
+ *
+ * vars.volume.storage
+ */
+aa-pvc-yaml(parent, vars) ::= <<
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prometheus-andrea
+  namespace: prometheus-andrea
+  labels:
+    group: prometheus-andrea
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: <vars.volume.storage>
+
+>>

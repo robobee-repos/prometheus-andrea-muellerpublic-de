@@ -1,0 +1,12 @@
+/*
+ *
+ */
+aa-namespace-yaml(parent, vars) ::= <<
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: prometheus-andrea
+  labels:
+    name: prometheus-andrea
+
+>>
