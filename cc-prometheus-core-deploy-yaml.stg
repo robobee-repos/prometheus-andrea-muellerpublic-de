@@ -1,0 +1,117 @@
+/*
+ * Mandatory:
+ *
+ * vars.prometheus.image.name
+ * vars.prometheus.image.version
+ * vars.prometheus.limits.cpu
+ * vars.prometheus.limits.memory
+ * vars.prometheus.requests.cpu
+ * vars.prometheus.requests.memory
+ * vars.prometheus.affinityRequired
+ * vars.prometheus.allowOnMaster
+ * vars.prometheus.tolerations[].key
+ * vars.prometheus.tolerations[].effect
+ *
+ * Optional:
+ *
+ * vars.prometheus.tolerations[].value
+ */
+
+import "affinities.stg"
+import "tolerations.stg"
+
+/*
+ *
+ */
+cc-prometheus-core-deploy-yaml(parent, vars) ::= <<
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-core
+  namespace: prometheus-andrea
+  labels:
+    app: prometheus-core
+    tier: frontend
+    group: prometheus-andrea
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+spec:
+  ports:
+  - name: "prometheus"
+    targetPort: "prometheus"
+  selector:
+    app: prometheus-core
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus-core
+  namespace: prometheus-andrea
+  labels:
+    app: prometheus-core
+    tier: frontend
+    group: prometheus-andrea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-core
+      tier: frontend
+      group: prometheus-andrea
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: prometheus-core
+        tier: frontend
+        group: prometheus-andrea
+    spec:
+      containers:
+      - image: <vars.prometheus.image.name>:<vars.prometheus.image.version>
+        name: prometheus-core
+        args:
+          - '--config.file=/etc/prometheus/prometheus.yaml'
+          - '--storage.tsdb.path=/data'
+        ports:
+        - containerPort: 9090
+          name: "prometheus"
+        resources:
+          limits:
+            cpu: <vars.prometheus.limits.cpu>
+            memory: <vars.prometheus.limits.memory>
+          requests:
+            cpu: <vars.prometheus.requests.cpu>
+            memory: <vars.prometheus.requests.memory>
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/prometheus
+        - name: rules-volume
+          mountPath: /etc/prometheus-rules
+        - name: data-volume
+          mountPath: /data
+          subPath: prometheus
+      restartPolicy: Always
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-core
+      - name: rules-volume
+        configMap:
+          name: prometheus-rules
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: prometheus-andrea
+<affinitiesGroup(parent, vars, vars.prometheus.affinityRequired)>
+tolerationMaster(parent, vars, vars.prometheus.allowOnMaster)
+<tolerationsGroup(parent, vars, vars.prometheus.tolerations)>
+
+---
+
+>>

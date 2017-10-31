@@ -1,0 +1,24 @@
+/*
+ * Mandatory:
+ *
+ * vars.prometheus.rules[] := name, value
+ */
+bb-prometheus-rules-config-yaml(parent, vars) ::= <<
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prometheus-rules
+  labels:
+    app: prometheus
+    tier: frontend
+    group: prometheus-andrea
+  namespace: prometheus-andrea
+data:
+  <vars.prometheus.rules:prometheusRules(parent, vars);separator="\n">
+
+>>
+
+prometheusRules(rule, parent, vars) ::= <<
+<rule.name>: |
+  <rule.value>
+>>

@@ -28,7 +28,7 @@ affinitiesGroup(parent, vars, affinityRequired) ::= <<
             podAffinityTerm:
               labelSelector:
                 matchExpressions:
-                - key: robobeerun.com/group
+                - key: group
                   operator: In
                   values:
                   - prometheus-andrea

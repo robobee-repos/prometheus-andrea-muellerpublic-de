@@ -1,0 +1,31 @@
+/*
+ * Mandatory:
+ *
+ * vars.prometheus.scrape.jobs[]
+ */
+bb-prometheus-core-config-yaml(parent, vars) ::= <<
+apiVersion: v1
+kind: Secret
+metadata:
+  name: prometheus-core
+  labels:
+    app: prometheus
+    tier: frontend
+    group: prometheus-andrea
+  namespace: prometheus-andrea
+data:
+  prometheus.yaml: |
+    global:
+      scrape_interval: 10s
+      scrape_timeout: 10s
+      evaluation_interval: 10s
+    rule_files:
+      - "/etc/prometheus-rules/*.rules"
+    scrape_configs:
+      <vars.prometheus.scrape.jobs:scrapeJob(parent, vars);separator="\n">
+    alerting:
+      alertmanagers:
+        - static_configs:
+          - targets:
+            - alertmanager:9093
+>>

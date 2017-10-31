@@ -1,0 +1,123 @@
+/*
+ * Mandatory:
+ *
+ * vars.blackboxHttps.image.name
+ * vars.blackboxHttps.image.version
+ * vars.blackboxHttps.limits.cpu
+ * vars.blackboxHttps.limits.memory
+ * vars.blackboxHttps.requests.cpu
+ * vars.blackboxHttps.requests.memory
+ * vars.blackboxHttps.affinityRequired
+ * vars.blackboxHttps.allowOnMaster
+ * vars.blackboxHttps.tolerations[].key
+ * vars.blackboxHttps.tolerations[].effect
+ *
+ * Optional:
+ *
+ * vars.blackboxHttps.tolerations[].value
+ */
+
+import "affinities.stg"
+import "tolerations.stg"
+
+/*
+ *
+ */
+cc-blackbox-https-deploy-yaml(parent, vars) ::= <<
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blackbox-https
+  namespace: prometheus-andrea
+  labels:
+    app: blackbox-https
+    tier: frontend
+    group: prometheus-andrea
+data:
+  blackbox.yml: |-
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      method: GET
+      no_follow_redirects: false
+      fail_if_ssl: false
+      fail_if_not_ssl: true
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: blackbox-https
+  namespace: blackboxHttps-andrea
+  labels:
+    app: blackbox-https
+    tier: frontend
+    group: blackboxHttps-andrea
+spec:
+  ports:
+  - name: "exporter"
+    targetPort: "exporter"
+  selector:
+    app: blackbox-https
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: blackbox-https
+  namespace: blackboxHttps-andrea
+  labels:
+    app: blackbox-https
+    tier: frontend
+    group: blackboxHttps-andrea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: blackbox-https
+      tier: frontend
+      group: blackboxHttps-andrea
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: blackbox-https
+        tier: frontend
+        group: blackboxHttps-andrea
+    spec:
+      containers:
+      - image: <vars.blackboxHttps.image.name>:<vars.blackboxHttps.image.version>
+        name: blackbox-https
+        ports:
+        - containerPort: 9115
+          name: "exporter"
+        resources:
+          limits:
+            cpu: <vars.blackboxHttps.limits.cpu>
+            memory: <vars.blackboxHttps.limits.memory>
+          requests:
+            cpu: <vars.blackboxHttps.requests.cpu>
+            memory: <vars.blackboxHttps.requests.memory>
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/blackbox-config
+      restartPolicy: Always
+      volumes:
+      - name: config-volume
+        configMap:
+          name: blackbox-https
+<affinitiesGroup(parent, vars, vars.blackboxHttps.affinityRequired)>
+tolerationMaster(parent, vars, vars.blackboxHttps.allowOnMaster)
+<tolerationsGroup(parent, vars, vars.blackboxHttps.tolerations)>
+
+---
+
+>>

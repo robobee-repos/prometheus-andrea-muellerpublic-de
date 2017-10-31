@@ -1,5 +1,36 @@
 /*
  *
  */
-tolerationsGroup(parent, vars) ::= <<
+tolerationMaster(parent, vars, allowOnMaster) ::= <<
+<if(allowOnMaster)>
+      tolerations:
+      - effect: NoSchedule
+        key: node.alpha.kubernetes.io/ismaster
+        operator: Equal
+<endif>
+>>
+
+/*
+ * Mandatory:
+ *
+ * tolerations[].key
+ * tolerations[].effect
+ * tolerations[].value
+ */
+tolerations(parent, vars, tolerations) ::= <<
+      <tolerationsHeader(parent, vars, tolerations)>
+<tolerations:toleration();separator="\n"><endif>
+>>
+
+tolerationsHeader(parent, vars, tolerations) ::= <%
+<if(!vars.graphite.allowOnMaster&&tolerations)>
+tolerations:
+<endif>
+%>
+
+toleration(toleration) ::= <<
+      - effect: <toleration.effect>
+        key: <toleration.key>
+        operator: <if(toleration.value)>Equal<else>Exists<endif><if(toleration.value)>
+        value: <toleration.value><endif>
 >>

@@ -1,0 +1,112 @@
+/*
+ * Mandatory:
+ *
+ * vars.alertmanager.image.name
+ * vars.alertmanager.image.version
+ * vars.alertmanager.limits.cpu
+ * vars.alertmanager.limits.memory
+ * vars.alertmanager.requests.cpu
+ * vars.alertmanager.requests.memory
+ * vars.alertmanager.affinityRequired
+ * vars.alertmanager.allowOnMaster
+ * vars.alertmanager.tolerations[].key
+ * vars.alertmanager.tolerations[].effect
+ *
+ * Optional:
+ *
+ * vars.alertmanager.tolerations[].value
+ */
+
+import "affinities.stg"
+import "tolerations.stg"
+
+/*
+ *
+ */
+cc-alertmanager-deploy-yaml(parent, vars) ::= <<
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: alertmanager
+  namespace: prometheus-andrea
+  labels:
+    app: alertmanager
+    tier: frontend
+    group: prometheus-andrea
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+spec:
+  ports:
+  - name: "alertmanager"
+    targetPort: "alertmanager"
+  selector:
+    app: alertmanager
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alertmanager
+  namespace: prometheus-andrea
+  labels:
+    app: alertmanager
+    tier: frontend
+    group: prometheus-andrea
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: alertmanager
+        tier: frontend
+        group: prometheus-andrea
+    spec:
+      containers:
+      - image: <vars.alertmanager.image.name>:<vars.alertmanager.image.version>
+        name: alertmanager
+        args:
+          - '-config.file=/etc/alertmanager/config.yml'
+          - '-storage.path=/alertmanager'
+        ports:
+        - containerPort: 9093
+          name: "alertmanager"
+        resources:
+          limits:
+            cpu: <vars.alertmanager.limits.cpu>
+            memory: <vars.alertmanager.limits.memory>
+          requests:
+            cpu: <vars.alertmanager.requests.cpu>
+            memory: <vars.alertmanager.requests.memory>
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/alertmanager
+        - name: templates-volume
+          mountPath: /etc/alertmanager-templates
+        - name: alertmanager
+          mountPath: /alertmanager
+          subPath: alertmanager
+      restartPolicy: Always
+      volumes:
+      - name: config-volume
+        configMap:
+          name: alertmanager
+      - name: templates-volume
+        configMap:
+          name: alertmanager-templates
+      - name: alertmanager
+        persistentVolumeClaim:
+          claimName: prometheus-andrea
+<affinitiesGroup(parent, vars, vars.alertmanager.affinityRequired)>
+tolerationMaster(parent, vars, vars.alertmanager.allowOnMaster)
+<tolerationsGroup(parent, vars, vars.alertmanager.tolerations)>
+
+---
+
+>>
