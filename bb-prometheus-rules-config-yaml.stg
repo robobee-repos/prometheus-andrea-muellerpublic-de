@@ -19,6 +19,6 @@ data:
 >>
 
 prometheusRules(rule, parent, vars) ::= <<
-<rule.name>: |
+<rule.name>.rules: |
   <rule.value>
 >>
