@@ -5,7 +5,7 @@
  */
 bb-prometheus-rules-config-yaml(parent, vars) ::= <<
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
   name: prometheus-rules
   labels:
