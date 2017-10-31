@@ -3,6 +3,7 @@
  *
  * vars.alertmanager.smtp.smarthost
  * vars.alertmanager.smtp.from
+ * vars.alertmanager.smtp.to
  * vars.alertmanager.smtp.user
  * vars.alertmanager.smtp.password
  */
@@ -37,9 +38,6 @@ data:
     receivers:
     - name: 'email_alert'
       email_configs:
-      - smtp_smarthost: '<vars.alertmanager.smtp.smarthost>'
-        smtp_from: '<vars.alertmanager.smtp.from>'
-        smtp_auth_username: '<vars.alertmanager.smtp.user>'
-        smtp_auth_password: '<vars.alertmanager.smtp.password>'
+      - to: '<vars.alertmanager.smtp.to>'
 
 >>
