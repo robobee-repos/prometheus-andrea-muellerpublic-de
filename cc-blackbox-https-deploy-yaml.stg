@@ -38,15 +38,15 @@ metadata:
     group: prometheus-andrea
 data:
   blackbox.yml: |-
-modules:
-  http_2xx:
-    prober: http
-    timeout: 5s
-    http:
-      method: GET
-      no_follow_redirects: false
-      fail_if_ssl: false
-      fail_if_not_ssl: true
+    modules:
+      http_2xx:
+        prober: http
+        timeout: 5s
+        http:
+          method: GET
+          no_follow_redirects: false
+          fail_if_ssl: false
+          fail_if_not_ssl: true
 
 ---
 
