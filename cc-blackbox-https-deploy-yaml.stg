@@ -54,11 +54,11 @@ apiVersion: v1
 kind: Service
 metadata:
   name: blackbox-https
-  namespace: blackboxHttps-andrea
+  namespace: prometheus-andrea
   labels:
     app: blackbox-https
     tier: frontend
-    group: blackboxHttps-andrea
+    group: prometheus-andrea
 spec:
   ports:
   - name: "exporter"
@@ -73,18 +73,18 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: blackbox-https
-  namespace: blackboxHttps-andrea
+  namespace: prometheus-andrea
   labels:
     app: blackbox-https
     tier: frontend
-    group: blackboxHttps-andrea
+    group: prometheus-andrea
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: blackbox-https
       tier: frontend
-      group: blackboxHttps-andrea
+      group: prometheus-andrea
   strategy:
     type: Recreate
   template:
@@ -92,7 +92,7 @@ spec:
       labels:
         app: blackbox-https
         tier: frontend
-        group: blackboxHttps-andrea
+        group: prometheus-andrea
     spec:
       containers:
       - image: <vars.blackboxHttps.image.name>:<vars.blackboxHttps.image.version>
