@@ -2,7 +2,7 @@
  *
  */
 delimiters "%", "%"
-bb-alertmanager-templates-config-yaml(parent, vars) ::= %%
+bb-alertmanager-templates-config-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -184,4 +184,4 @@ data:
     {{end}}
     {{ end }}
 
-%%
+>>
