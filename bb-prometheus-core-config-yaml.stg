@@ -29,3 +29,8 @@ data:
           - targets:
             - alertmanager:9093
 >>
+
+scrapeJob(job, parent, vars) ::= <<
+- job_name: '<job.name>'
+  <job.value>
+>>
