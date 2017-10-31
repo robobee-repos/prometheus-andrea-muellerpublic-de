@@ -42,6 +42,7 @@ metadata:
 spec:
   ports:
   - name: "alertmanager"
+    port: "alertmanager"
     targetPort: "alertmanager"
   selector:
     app: alertmanager

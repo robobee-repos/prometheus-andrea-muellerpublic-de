@@ -62,6 +62,7 @@ metadata:
 spec:
   ports:
   - name: "exporter"
+    port: "exporter"
     targetPort: "exporter"
   selector:
     app: blackbox-https

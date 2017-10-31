@@ -42,6 +42,7 @@ metadata:
 spec:
   ports:
   - name: "prometheus"
+    port: "prometheus"
     targetPort: "prometheus"
   selector:
     app: prometheus-core
