@@ -1,7 +1,7 @@
 /*
  * Mandatory:
  *
- * vars.prometheus.scrape.jobs[]
+ * vars.scrape.jobs[]
  */
 bb-prometheus-core-config-yaml(parent, vars) ::= <<
 apiVersion: v1
@@ -22,7 +22,7 @@ data:
     rule_files:
       - "/etc/prometheus-rules/*.rules"
     scrape_configs:
-      <vars.prometheus.scrape.jobs:scrapeJob(parent, vars);separator="\n">
+      <vars.scrape.jobs:scrapeJob(parent, vars);separator="\n">
     alerting:
       alertmanagers:
         - static_configs:

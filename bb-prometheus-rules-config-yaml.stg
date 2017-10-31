@@ -1,7 +1,7 @@
 /*
  * Mandatory:
  *
- * vars.prometheus.rules[] := name, value
+ * vars.rules[] := name, value
  */
 bb-prometheus-rules-config-yaml(parent, vars) ::= <<
 apiVersion: v1
@@ -14,7 +14,7 @@ metadata:
     group: prometheus-andrea
   namespace: prometheus-andrea
 data:
-  <vars.prometheus.rules:prometheusRules(parent, vars);separator="\n">
+  <vars.rules:prometheusRules(parent, vars);separator="\n">
 
 >>
 
