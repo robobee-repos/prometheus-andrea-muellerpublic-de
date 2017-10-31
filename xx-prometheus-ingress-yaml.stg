@@ -26,7 +26,7 @@ spec:
       paths:
       - path: /
         backend:
-          serviceName: "prometheus"
+          serviceName: "prometheus-core"
           servicePort: 9090
 
 >>
