@@ -115,7 +115,7 @@ spec:
         configMap:
           name: blackbox-https
 <affinitiesGroup(parent, vars, vars.blackboxHttps.affinityRequired)>
-tolerationMaster(parent, vars, vars.blackboxHttps.allowOnMaster)
+<tolerationMaster(parent, vars, vars.blackboxHttps.allowOnMaster)>
 <tolerationsGroup(parent, vars, vars.blackboxHttps.tolerations)>
 
 ---

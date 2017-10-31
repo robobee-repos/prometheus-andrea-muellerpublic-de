@@ -109,7 +109,7 @@ spec:
         persistentVolumeClaim:
           claimName: prometheus-andrea
 <affinitiesGroup(parent, vars, vars.prometheus.affinityRequired)>
-tolerationMaster(parent, vars, vars.prometheus.allowOnMaster)
+<tolerationMaster(parent, vars, vars.prometheus.allowOnMaster)>
 <tolerationsGroup(parent, vars, vars.prometheus.tolerations)>
 
 ---

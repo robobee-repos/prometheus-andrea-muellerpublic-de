@@ -104,7 +104,7 @@ spec:
         persistentVolumeClaim:
           claimName: prometheus-andrea
 <affinitiesGroup(parent, vars, vars.alertmanager.affinityRequired)>
-tolerationMaster(parent, vars, vars.alertmanager.allowOnMaster)
+<tolerationMaster(parent, vars, vars.alertmanager.allowOnMaster)>
 <tolerationsGroup(parent, vars, vars.alertmanager.tolerations)>
 
 ---
