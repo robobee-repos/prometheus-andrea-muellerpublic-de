@@ -1,6 +1,7 @@
 /*
  *
  */
+delimiters "%", "%"
 bb-alertmanager-templates-config-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
@@ -9,7 +10,7 @@ metadata:
   namespace: prometheus-andrea
   labels:
     app: alertmanager
-    tier: application
+    tier: frontend
     group: prometheus-andrea
 data:
   default.tmpl: |
