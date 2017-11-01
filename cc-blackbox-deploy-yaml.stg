@@ -40,6 +40,9 @@ metadata:
 data:
   config.yml: |-
     modules:
+      http_2xx:
+        prober: http
+        http:
       <vars.blackbox.modules:blackboxModule(parent, vars);separator="\n">
 
 ---
