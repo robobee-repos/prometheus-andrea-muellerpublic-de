@@ -83,6 +83,19 @@ spec:
         ports:
         - containerPort: 9090
           name: "prometheus"
+        livenessProbe:
+          tcpSocket:
+            port: 9090
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9090
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
         resources:
           limits:
             cpu: <vars.prometheus.limits.cpu>

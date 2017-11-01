@@ -78,6 +78,19 @@ spec:
         ports:
         - containerPort: 9093
           name: "alertmanager"
+        livenessProbe:
+          tcpSocket:
+            port: 9093
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9093
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
         resources:
           limits:
             cpu: <vars.alertmanager.limits.cpu>
