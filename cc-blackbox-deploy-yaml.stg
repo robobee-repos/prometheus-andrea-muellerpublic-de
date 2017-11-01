@@ -97,6 +97,19 @@ spec:
         ports:
         - containerPort: 9115
           name: "exporter"
+        livenessProbe:
+          tcpSocket:
+            port: 9115
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9115
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
         resources:
           limits:
             cpu: <vars.blackbox.limits.cpu>
