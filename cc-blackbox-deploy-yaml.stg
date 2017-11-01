@@ -1,20 +1,21 @@
 /*
  * Mandatory:
  *
- * vars.blackboxHttps.image.name
- * vars.blackboxHttps.image.version
- * vars.blackboxHttps.limits.cpu
- * vars.blackboxHttps.limits.memory
- * vars.blackboxHttps.requests.cpu
- * vars.blackboxHttps.requests.memory
- * vars.blackboxHttps.affinityRequired
- * vars.blackboxHttps.allowOnMaster
- * vars.blackboxHttps.tolerations[].key
- * vars.blackboxHttps.tolerations[].effect
+ * vars.blackbox.image.name
+ * vars.blackbox.image.version
+ * vars.blackbox.limits.cpu
+ * vars.blackbox.limits.memory
+ * vars.blackbox.requests.cpu
+ * vars.blackbox.requests.memory
+ * vars.blackbox.modules
+ * vars.blackbox.affinityRequired
+ * vars.blackbox.allowOnMaster
+ * vars.blackbox.tolerations[].key
+ * vars.blackbox.tolerations[].effect
  *
  * Optional:
  *
- * vars.blackboxHttps.tolerations[].value
+ * vars.blackbox.tolerations[].value
  */
 
 import "affinities.stg"
@@ -23,26 +24,28 @@ import "tolerations.stg"
 /*
  *
  */
-cc-blackbox-https-deploy-yaml(parent, vars) ::= <<
+cc-blackbox-deploy-yaml(parent, vars) ::= <<
 
 ---
 
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: blackbox-https
+  name: blackbox
   namespace: prometheus-andrea
   labels:
-    app: blackbox-https
+    app: blackbox
     tier: frontend
     group: prometheus-andrea
 data:
   blackbox.yml: |-
     modules:
+      <vars.blackbox.modules:blackboxModule(parent, vars);separator="\n">
       http_2xx:
         prober: http
         timeout: 5s
         http:
+          valid_status_codes: []
           method: GET
           no_follow_redirects: false
           fail_if_ssl: false
@@ -53,10 +56,10 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
-  name: blackbox-https
+  name: blackbox
   namespace: prometheus-andrea
   labels:
-    app: blackbox-https
+    app: blackbox
     tier: frontend
     group: prometheus-andrea
 spec:
@@ -65,24 +68,24 @@ spec:
     port: 9115
     targetPort: "exporter"
   selector:
-    app: blackbox-https
+    app: blackbox
 
 ---
 
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: blackbox-https
+  name: blackbox
   namespace: prometheus-andrea
   labels:
-    app: blackbox-https
+    app: blackbox
     tier: frontend
     group: prometheus-andrea
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: blackbox-https
+      app: blackbox
       tier: frontend
       group: prometheus-andrea
   strategy:
@@ -90,23 +93,23 @@ spec:
   template:
     metadata:
       labels:
-        app: blackbox-https
+        app: blackbox
         tier: frontend
         group: prometheus-andrea
     spec:
       containers:
-      - image: <vars.blackboxHttps.image.name>:<vars.blackboxHttps.image.version>
-        name: blackbox-https
+      - image: <vars.blackbox.image.name>:<vars.blackbox.image.version>
+        name: blackbox
         ports:
         - containerPort: 9115
           name: "exporter"
         resources:
           limits:
-            cpu: <vars.blackboxHttps.limits.cpu>
-            memory: <vars.blackboxHttps.limits.memory>
+            cpu: <vars.blackbox.limits.cpu>
+            memory: <vars.blackbox.limits.memory>
           requests:
-            cpu: <vars.blackboxHttps.requests.cpu>
-            memory: <vars.blackboxHttps.requests.memory>
+            cpu: <vars.blackbox.requests.cpu>
+            memory: <vars.blackbox.requests.memory>
         volumeMounts:
         - name: config-volume
           mountPath: /etc/blackbox-config
@@ -114,11 +117,16 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: blackbox-https
-<affinitiesGroup(parent, vars, vars.blackboxHttps.affinityRequired)>
-<tolerationMaster(parent, vars, vars.blackboxHttps.allowOnMaster)>
-<tolerationsGroup(parent, vars, vars.blackboxHttps.tolerations)>
+          name: blackbox
+<affinitiesGroup(parent, vars, vars.blackbox.affinityRequired)>
+<tolerationMaster(parent, vars, vars.blackbox.allowOnMaster)>
+<tolerationsGroup(parent, vars, vars.blackbox.tolerations)>
 
 ---
 
+>>
+
+blackboxModule(module, parent, vars) ::= <<
+<module.name>:
+  <module.value>
 >>
