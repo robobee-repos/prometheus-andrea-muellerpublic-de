@@ -38,7 +38,7 @@ metadata:
     tier: frontend
     group: prometheus-andrea
 data:
-  blackbox.yml: |-
+  config.yml: |-
     modules:
       <vars.blackbox.modules:blackboxModule(parent, vars);separator="\n">
 
@@ -103,7 +103,7 @@ spec:
             memory: <vars.blackbox.requests.memory>
         volumeMounts:
         - name: config-volume
-          mountPath: /etc/blackbox-config
+          mountPath: /etc/blackbox_exporter
       restartPolicy: Always
       volumes:
       - name: config-volume
