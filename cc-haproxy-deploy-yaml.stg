@@ -1,0 +1,122 @@
+/*
+ * Mandatory:
+ *
+ * vars.haproxy.image.name
+ * vars.haproxy.image.version
+ * vars.haproxy.limits.cpu
+ * vars.haproxy.limits.memory
+ * vars.haproxy.requests.cpu
+ * vars.haproxy.requests.memory
+ * vars.haproxy.uri
+ * vars.haproxy.affinityRequired
+ * vars.haproxy.allowOnMaster
+ * vars.haproxy.tolerations[].key
+ * vars.haproxy.tolerations[].effect
+ *
+ * Optional:
+ *
+ * vars.haproxy.tolerations[].value
+ */
+
+import "affinities.stg"
+import "tolerations.stg"
+
+/*
+ *
+ */
+cc-haproxy-deploy-yaml(parent, vars) ::= <<
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: haproxy
+  namespace: prometheus-andrea
+  labels:
+    app: haproxy
+    tier: frontend
+    group: prometheus-andrea
+spec:
+  ports:
+  - name: "exporter"
+    port: 9101
+    targetPort: "exporter"
+  selector:
+    app: haproxy
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: haproxy
+  namespace: prometheus-andrea
+  labels:
+    app: haproxy
+    tier: frontend
+    group: prometheus-andrea
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: haproxy
+      tier: frontend
+      group: prometheus-andrea
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: haproxy
+        tier: frontend
+        group: prometheus-andrea
+    spec:
+      containers:
+      - image: <vars.haproxy.image.name>:<vars.haproxy.image.version>
+        name: haproxy
+        args:
+        - "--haproxy.scrape-uri=<vars.haproxy.uri>"
+        ports:
+        - containerPort: 9101
+          name: "exporter"
+        livenessProbe:
+          tcpSocket:
+            port: 9101
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 9101
+          initialDelaySeconds: 10
+          periodSeconds: 60
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: <vars.haproxy.limits.cpu>
+            memory: <vars.haproxy.limits.memory>
+          requests:
+            cpu: <vars.haproxy.requests.cpu>
+            memory: <vars.haproxy.requests.memory>
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/haproxy_exporter
+      restartPolicy: Always
+      volumes:
+      - name: config-volume
+        configMap:
+          name: haproxy
+<affinitiesGroup(parent, vars, vars.haproxy.affinityRequired)>
+<tolerationMaster(parent, vars, vars.haproxy.allowOnMaster)>
+<tolerationsGroup(parent, vars, vars.haproxy.tolerations)>
+
+---
+
+>>
+
+haproxyModule(module, parent, vars) ::= <<
+<module.name>:
+  <module.value>
+>>
