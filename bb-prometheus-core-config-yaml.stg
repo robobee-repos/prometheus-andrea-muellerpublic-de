@@ -1,6 +1,9 @@
 /*
  * Mandatory:
  *
+ * vars.scrape.interval
+ * vars.scrape.timeout
+ * vars.scrape.evaluation
  * vars.scrape.jobs[]
  */
 bb-prometheus-core-config-yaml(parent, vars) ::= <<
@@ -16,9 +19,9 @@ metadata:
 data:
   prometheus.yaml: |
     global:
-      scrape_interval: 10m
-      scrape_timeout: 10s
-      evaluation_interval: 10m
+      scrape_interval: <vars.scrape.interval>
+      scrape_timeout: <vars.scrape.timeout>
+      evaluation_interval: <vars.scrape.evaluation>
     rule_files:
       - "/etc/prometheus-rules/*.rules"
     scrape_configs:
