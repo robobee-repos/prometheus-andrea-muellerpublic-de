@@ -100,14 +100,7 @@ spec:
           requests:
             cpu: <vars.haproxy.requests.cpu>
             memory: <vars.haproxy.requests.memory>
-        volumeMounts:
-        - name: config-volume
-          mountPath: /etc/haproxy_exporter
       restartPolicy: Always
-      volumes:
-      - name: config-volume
-        configMap:
-          name: haproxy
 <affinitiesGroup(parent, vars, vars.haproxy.affinityRequired)>
 <tolerationMaster(parent, vars, vars.haproxy.allowOnMaster)>
 <tolerationsGroup(parent, vars, vars.haproxy.tolerations)>
