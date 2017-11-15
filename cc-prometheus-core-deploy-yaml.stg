@@ -115,10 +115,10 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: prometheus-core
+          name: prometheus-core-r1
       - name: rules-volume
         configMap:
-          name: prometheus-rules
+          name: prometheus-rules-r1
       - name: data-volume
         persistentVolumeClaim:
           claimName: prometheus-andrea

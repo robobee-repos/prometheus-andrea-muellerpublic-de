@@ -7,7 +7,7 @@ bb-prometheus-rules-config-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: prometheus-rules
+  name: prometheus-rules-r1
   labels:
     app: prometheus
     tier: frontend

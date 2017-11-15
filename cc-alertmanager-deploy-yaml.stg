@@ -110,10 +110,10 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: alertmanager
+          name: alertmanager-r1
       - name: templates-volume
         configMap:
-          name: alertmanager-templates
+          name: alertmanager-templates-r1
       - name: alertmanager
         persistentVolumeClaim:
           claimName: prometheus-andrea

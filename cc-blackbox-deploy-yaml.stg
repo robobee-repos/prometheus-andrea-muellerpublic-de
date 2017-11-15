@@ -31,7 +31,7 @@ cc-blackbox-deploy-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: blackbox
+  name: blackbox-r1
   namespace: prometheus-andrea
   labels:
     app: blackbox
@@ -124,7 +124,7 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: blackbox
+          name: blackbox-r1
 <affinitiesGroup(parent, vars, vars.blackbox.affinityRequired)>
 <tolerationMaster(parent, vars, vars.blackbox.allowOnMaster)>
 <tolerationsGroup(parent, vars, vars.blackbox.tolerations)>

@@ -11,7 +11,7 @@ bb-alertmanager-config-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: alertmanager
+  name: alertmanager-r1
   namespace: prometheus-andrea
   labels:
     app: alertmanager
