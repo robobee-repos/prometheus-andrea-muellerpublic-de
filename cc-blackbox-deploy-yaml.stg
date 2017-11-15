@@ -31,7 +31,7 @@ cc-blackbox-deploy-yaml(parent, vars) ::= <<
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: blackbox-r1
+  name: blackbox-r2
   namespace: prometheus-andrea
   labels:
     app: blackbox
