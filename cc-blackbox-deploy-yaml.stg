@@ -124,7 +124,7 @@ spec:
       volumes:
       - name: config-volume
         configMap:
-          name: blackbox-r1
+          name: blackbox-r2
 <affinitiesGroup(parent, vars, vars.blackbox.affinityRequired)>
 <tolerationMaster(parent, vars, vars.blackbox.allowOnMaster)>
 <tolerationsGroup(parent, vars, vars.blackbox.tolerations)>
